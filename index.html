@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>VAI DE BOA! PREVIEW</title>
+<meta name="theme-color" content="#000000">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  background: #000;
+  overflow: hidden;
+  position: fixed;
+}
+
+/* ═══ FUNDO COM FOTO ═══ */
+#bg {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: opacity 0.6s ease, transform 8s ease;
+  opacity: 0;
+  z-index: 1;
+}
+#bg.active { opacity: 1; }
+#bg.zoom { transform: scale(1.08); }
+
+/* Overlay escuro pra dar contraste */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.85) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ═══ LOGO FAVICON CENTRAL (marca d'água) ═══ */
+#logoCenter {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22vmin;
+  height: 22vmin;
+  max-width: 160px;
+  max-height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  opacity: 0.22;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 0 40px rgba(168,85,247,0.6));
+  animation: logoPulse 4s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%,100% { opacity: 0.18; transform: translate(-50%,-50%) scale(1); }
+  50%     { opacity: 0.30; transform: translate(-50%,-50%) scale(1.05); }
+}
+
+/* ═══ TOPO ═══ */
+#topBar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+}
+.pill {
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 30px;
+  padding: 6px 14px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.pill .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f472b6;
+  margin-right: 6px;
+  animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.3; }
+}
+#counterPill .num {
+  color: #22d3ee;
+  font-weight: 900;
+}
+
+/* ═══ INFO MÚSICA (rodapé) ═══ */
+#infoBox {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 10;
+  padding: 16px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
+}
+#infoArtist {
+  font-size: 0.72rem;
+  color: #22d3ee;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+#infoTitle {
+  font-size: 1.3rem;
+  color: #fff;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+#genreTag {
+  display: inline-block;
+  background: linear-gradient(135deg, #a855f7, #22d3ee);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+/* ═══ BARRA DE 20s ═══ */
+#previewBar {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+#previewFill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #a855f7, #22d3ee, #f472b6);
+  border-radius: 4px;
+  transition: width 0.15s linear;
+}
+#previewTime {
+  position: absolute;
+  right: 0;
+  top: -22px;
+  font-size: 0.65rem;
+  color: #22d3ee;
+  font-weight: 700;
+}
+
+/* ═══ CONTROLES ═══ */
+#controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.ctrl {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.ctrl:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+.ctrl.play {
+  width: 62px;
+  height: 62px;
+  background: linear-gradient(135deg, #a855f7, #22d3ee);
+  border: none;
+  font-size: 1.3rem;
+  box-shadow: 0 0 30px rgba(168,85,247,0.6);
+}
+
+/* ═══ BOTÃO COMPRAR (completa) ═══ */
+#buyBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  margin-top: 14px;
+  background: linear-gradient(135deg, #25d366, #128C7E);
+  border: none;
+  border-radius: 25px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(37,211,102,0.5);
+  animation: buyPulse 2s ease-in-out infinite;
+}
+@keyframes buyPulse {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.03); }
+}
+#buyBtn:active { transform: scale(0.97); }
+
+/* ═══ MENU TOPO ═══ */
+#menuBtn {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* ═══ MODAL INFO ═══ */
+#modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#modal.open { display: flex; }
+.modalBox {
+  background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+  border-radius: 24px;
+  padding: 24px 20px;
+  max-width: 380px;
+  width: 100%;
+  border: 1px solid rgba(168,85,247,0.3);
+  text-align: center;
+}
+.modalBox h2 {
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.modalBox p {
+  color: #aaa;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.modalBox button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #a855f7, #22d3ee);
+  border: none;
+  border-radius: 25px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.modalBox button.close {
+  background: rgba(255,255,255,0.08);
+  color: #888;
+  font-size: 0.8rem;
+}
+
+/* ═══ LOADING ═══ */
+#loading {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+#loading img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #a855f7;
+  animation: logoPulse 1.5s ease-in-out infinite;
+}
+#loading .text {
+  font-size: 1rem;
+  background: linear-gradient(135deg, #a855f7, #22d3ee, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  letter-spacing: 4px;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(168,85,247,0.2);
+  border-top-color: #22d3ee;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══ RESPONSIVO ═══ */
+@media (max-width: 480px) {
+  #infoTitle { font-size: 1.1rem; }
+  #infoArtist { font-size: 0.65rem; }
+  .ctrl { width: 44px; height: 44px; font-size: 1rem; }
+  .ctrl.play { width: 56px; height: 56px; font-size: 1.2rem; }
+  #controls { gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="overlay"></div>
+<img id="logoCenter" src="favicon30.png" alt="VDB" onerror="this.style.display='none'">
+
+<div id="topBar">
+  <div class="pill"><span class="dot"></span>AO VIVO</div>
+  <div class="pill" id="counterPill"><span class="num">1</span>/<span id="totalPill">0</span></div>
+  <button id="menuBtn">☰</button>
+</div>
+
+<div id="infoBox">
+  <div id="infoArtist">Artista</div>
+  <div id="infoTitle">Música</div>
+  <div id="genreTag">GÊNERO</div>
+
+  <div id="previewBar">
+    <div id="previewFill"></div>
+    <span id="previewTime">20s</span>
+  </div>
+
+  <div id="controls">
+    <button class="ctrl" id="prevBtn">⏮</button>
+    <button class="ctrl play" id="playBtn">⏸</button>
+    <button class="ctrl" id="nextBtn">⏭</button>
+  </div>
+
+  <button id="buyBtn">
+    💬 OUVIR COMPLETA
+  </button>
+</div>
+
+<div id="modal">
+  <div class="modalBox">
+    <h2>🎵 VAI DE BOA! MUSIC</h2>
+    <p>Você está ouvindo uma <b>prévia de 20 segundos</b>.<br><br>Quer ouvir as músicas <b>COMPLETAS</b> sem parar?<br>Adquira o acesso <b>VITALÍCIO</b> por apenas <b style="color:#fbbf24;">R$ 39,00</b>!</p>
+    <button id="modalBuy">💬 COMPRAR AGORA</button>
+    <button class="close" id="modalClose">Continuar ouvindo prévias</button>
+  </div>
+</div>
+
+<div id="loading">
+  <img src="favicon30.png" alt="VDB" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23a855f7%22/%3E%3C/svg%3E'">
+  <div class="spinner"></div>
+  <div class="text">CARREGANDO</div>
+</div>
+
+<audio id="player" preload="auto"></audio>
+
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════
+   ⚙️ CONFIGURAÇÕES
+   ═══════════════════════════════════════════════════════════ */
+const CONFIG = {
+  WHATSAPP: '5512988461978',
+  DURACAO_PREVIEW: 20,          // segundos por música
+  FADE_OUT: 2,                  // fade final em segundos
+  FOTO_FALLBACK: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp',
+};
+
+/* ═══════════════════════════════════════════════════════════
+   🎵 LISTA DE MÚSICAS — EDITE AQUI!
+   
+   COMO ADICIONAR:
+   1. Suba o MP3 no GitHub (radiolojasjc-hub/SEU-REPO)
+   2. Suba a foto .webp no GitHub (radiolojasjc-hub/VDB/fotos/)
+   3. Cole a URL do MP3 em "src" e da foto em "foto"
+   ═══════════════════════════════════════════════════════════ */
+const MUSICAS = [
+  {
+    artist: "Nattan & Zé Vaqueiro",
+    title: "Aproveita Que Eu Tô Brigado (Ao Vivo)",
+    genero: "FORRÓ",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/Aproveita_Que_Eu_To_Brigado.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/nattan.webp"
+  },
+  {
+    artist: "Raphael Alencar",
+    title: "Brigas",
+    genero: "POP",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/Brigas_Raphael_Alencar.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
+  },
+  {
+    artist: "DAN VENTURA",
+    title: "Cada Volta É Um Recomeço",
+    genero: "POP",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/CADA_VOLTA_E_UM_RECOMECO_VA_COM_DEUS_TEMPORAL_DAN_VENTURA.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
+  },
+  {
+    artist: "Seresta Boteco Brega",
+    title: "Porque Brigamos",
+    genero: "BREGA",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/Porque_Brigamos_Seresta_Boteco_Brega.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
+  },
+  {
+    artist: "Klessinha",
+    title: "Fim de Noite",
+    genero: "POP",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/FimdeNoiteKlessinha.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
+  },
+  {
+    artist: "Raphael Alencar O Príncipe",
+    title: "A Raposa e as Uvas",
+    genero: "SERESTA",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/A_Raposa_e_as_Uvas_DVD_Seresta_do_Principe_Raphael_Alencar_O_Principe.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
+  },
+  {
+    artist: "Raphael Alencar O Príncipe",
+    title: "Retrovisor",
+    genero: "SERESTA",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/Retrovisor_DVD_Seresta_do_Principe_Raphael_Alencar_O_Principe.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
+  },
+  {
+    artist: "DAN VENTURA",
+    title: "2.0 Amanhã Talvez Estou Apaixonado",
+    genero: "POP",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/._AMANHA_TALVEZ_ESTOU_APAIXONADO_DAN_VENTURA.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
+  },
+  {
+    artist: "DAN VENTURA",
+    title: "2.0 É Tarde Demais Sozinho",
+    genero: "POP",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/._E_TARDE_DEMAIS_SOZINHO_DAN_VENTURA.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
+  },
+  {
+    artist: "Raphael Alencar O Príncipe",
+    title: "A Desconhecida",
+    genero: "SERESTA",
+    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/A_Desconhecida_DVD_Seresta_do_Principe_Raphael_Alencar_O_Principe.mp3",
+    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   🧠 ESTADO
+   ═══════════════════════════════════════════════════════════ */
+const state = {
+  indice: 0,
+  tocando: false,
+  timerPreview: null,
+  timerFade: null,
+  currentFoto: null,
+};
+
+const player = document.getElementById('player');
+const bg = document.getElementById('bg');
+const elArtist = document.getElementById('infoArtist');
+const elTitle = document.getElementById('infoTitle');
+const elGenre = document.getElementById('genreTag');
+const elCounter = document.querySelector('#counterPill .num');
+const elTotal = document.getElementById('totalPill');
+const elFill = document.getElementById('previewFill');
+const elTime = document.getElementById('previewTime');
+const playBtn = document.getElementById('playBtn');
+
+document.getElementById('totalPill').textContent = MUSICAS.length;
+
+/* ═══════════════════════════════════════════════════════════
+   🎨 HELPERS
+   ═══════════════════════════════════════════════════════════ */
+function mostrarMusica(idx) {
+  if (!MUSICAS.length) return;
+  state.indice = ((idx % MUSICAS.length) + MUSICAS.length) % MUSICAS.length;
+  const m = MUSICAS[state.indice];
+
+  elArtist.textContent = m.artist || 'Artista';
+  elTitle.textContent = m.title || 'Música';
+  elGenre.textContent = m.genero || 'MÚSICA';
+  elCounter.textContent = state.indice + 1;
+
+  // foto de fundo
+  const foto = m.foto || CONFIG.FOTO_FALLBACK;
+  if (state.currentFoto !== foto) {
+    state.currentFoto = foto;
+    bg.style.opacity = '0';
+    const img = new Image();
+    img.onload = () => {
+      bg.style.backgroundImage = `url('${foto}')`;
+      bg.classList.add('zoom');
+      setTimeout(() => { bg.style.opacity = '1'; }, 50);
+    };
+    img.onerror = () => {
+      bg.style.backgroundImage = `url('${CONFIG.FOTO_FALLBACK}')`;
+      bg.style.opacity = '1';
+    };
+    img.src = foto;
+  }
+}
+
+function tocarAtual() {
+  const m = MUSICAS[state.indice];
+  if (!m) return;
+
+  pararTimers();
+  player.pause();
+  player.removeAttribute('src');
+  player.load();
+  player.src = m.src;
+  player.volume = 1;
+  player.currentTime = 0;
+
+  const onCanPlay = () => {
+    player.removeEventListener('canplay', onCanPlay);
+    player.play().then(() => {
+      state.tocando = true;
+      playBtn.textContent = '⏸';
+      iniciarTimerPreview();
+    }).catch(() => {
+      // Autoplay bloqueado ou erro — tenta próxima
+      setTimeout(() => { proxima(); }, 800);
+    });
+  };
+  player.addEventListener('canplay', onCanPlay);
+  player.load();
+}
+
+function iniciarTimerPreview() {
+  const dur = CONFIG.DURACAO_PREVIEW;
+  const inicio = Date.now();
+
+  state.timerPreview = setInterval(() => {
+    const passou = (Date.now() - inicio) / 1000;
+    const pct = Math.min((passou / dur) * 100, 100);
+    elFill.style.width = pct + '%';
+    const restante = Math.max(0, Math.ceil(dur - passou));
+    elTime.textContent = restante + 's';
+
+    // começa o fade nos últimos 2 segundos
+    if (passou >= dur - CONFIG.FADE_OUT && !state.timerFade) {
+      state.timerFade = setInterval(() => {
+        if (player.volume > 0.05) player.volume = Math.max(0, player.volume - 0.08);
+        else player.volume = 0;
+      }, 100);
+    }
+
+    // fim dos 20s
+    if (passou >= dur) {
+      pararTimers();
+      proxima();
+    }
+  }, 150);
+}
+
+function pararTimers() {
+  if (state.timerPreview) { clearInterval(state.timerPreview); state.timerPreview = null; }
+  if (state.timerFade) { clearInterval(state.timerFade); state.timerFade = null; }
+  elFill.style.width = '0%';
+  elTime.textContent = CONFIG.DURACAO_PREVIEW + 's';
+  player.volume = 1;
+}
+
+function proxima() {
+  mostrarMusica(state.indice + 1);
+  tocarAtual();
+}
+function anterior() {
+  mostrarMusica(state.indice - 1);
+  tocarAtual();
+}
+
+function togglePlay() {
+  if (state.tocando) {
+    player.pause();
+    state.tocando = false;
+    playBtn.textContent = '▶';
+    pararTimers();
+  } else {
+    tocarAtual();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🎯 EVENTOS
+   ═══════════════════════════════════════════════════════════ */
+playBtn.onclick = togglePlay;
+document.getElementById('nextBtn').onclick = proxima;
+document.getElementById('prevBtn').onclick = anterior;
+
+function abrirWhats() {
+  const m = MUSICAS[state.indice];
+  const msg = `Olá! Ouvi a prévia de *${m.title}* — ${m.artist} no VAI DE BOA! MUSIC e quero o acesso VITALÍCIO por R$ 39,00 🎵`;
+  window.open('https://wa.me/' + CONFIG.WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
+}
+document.getElementById('buyBtn').onclick = abrirWhats;
+document.getElementById('modalBuy').onclick = abrirWhats;
+
+document.getElementById('menuBtn').onclick = () => document.getElementById('modal').classList.add('open');
+document.getElementById('modalClose').onclick = () => document.getElementById('modal').classList.remove('open');
+document.getElementById('modal').onclick = (e) => {
+  if (e.target.id === 'modal') e.target.classList.remove('open');
+};
+
+// teclado
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  if (e.key === 'ArrowRight') proxima();
+  if (e.key === 'ArrowLeft') anterior();
+});
+
+// swipe (mobile)
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 60) {
+    if (dx < 0) proxima();
+    else anterior();
+  }
+}, { passive: true });
+
+/* ═══════════════════════════════════════════════════════════
+   🚀 INICIAR
+   ═══════════════════════════════════════════════════════════ */
+function iniciar() {
+  mostrarMusica(0);
+  setTimeout(() => {
+    document.getElementById('loading').style.display = 'none';
+    // tenta tocar (o usuário pode ter que tocar na tela 1ª vez por causa do autoplay)
+    tocarAtual();
+  }, 1200);
+}
+
+// Se o navegador bloquear autoplay, ativa no primeiro clique/touch
+function desbloquearAutoplay() {
+  document.removeEventListener('click', desbloquearAutoplay);
+  document.removeEventListener('touchstart', desbloquearAutoplay);
+  if (!state.tocando) tocarAtual();
+}
+document.addEventListener('click', desbloquearAutoplay, { once: true });
+document.addEventListener('touchstart', desbloquearAutoplay, { once: true });
+
+iniciar();
+
+})();
+</script>
+</body>
+</html>
