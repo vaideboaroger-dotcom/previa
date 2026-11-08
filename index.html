@@ -1,705 +1,1070 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>VAI DE BOA! PREVIEW</title>
-<meta name="theme-color" content="#000000">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Flash Hits - Playlists com músicas dos anos 70, 80 e 90. Flashback gratuito 24h, sem cadastro.">
+  <meta name="theme-color" content="#0f0f13">
+  <title>Flash Hits — Músicas do Passado</title>
+  <link rel="icon" href="https://flash-hits.blogspot.com/favicon.ico">
+  <link rel="canonical" href="https://flash-hits.blogspot.com/">
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
+  <!-- Open Graph -->
+  <meta property="og:title" content="Flash Hits — Músicas do Passado">
+  <meta property="og:description" content="Playlists com músicas dos anos 70, 80 e 90.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://flash-hits.blogspot.com/">
 
-html, body {
-  height: 100%;
-  width: 100%;
-  background: #000;
-  overflow: hidden;
-  position: fixed;
-}
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-/* ═══ FUNDO COM FOTO ═══ */
-#bg {
-  position: fixed;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: opacity 0.6s ease, transform 8s ease;
-  opacity: 0;
-  z-index: 1;
-}
-#bg.active { opacity: 1; }
-#bg.zoom { transform: scale(1.08); }
+  <style>
+    /* ============ RESET & VARIÁVEIS ============ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Overlay escuro pra dar contraste */
-#overlay {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.85) 100%);
-  z-index: 2;
-  pointer-events: none;
-}
+    :root {
+      --bg: #0f0f13;
+      --bg-soft: #17171f;
+      --bg-card: #1c1c26;
+      --bg-elev: #23232f;
+      --border: #2a2a3a;
+      --text: #e8e8f0;
+      --text-dim: #9a9aae;
+      --text-mute: #6a6a7e;
+      --accent: #f0b429;
+      --accent-2: #e6c874;
+      --accent-glow: rgba(240, 180, 41, 0.18);
+      --green: #25D366;
+      --green-hover: #1EBE57;
+      --radius: 14px;
+      --radius-sm: 9px;
+      --shadow: 0 10px 30px -12px rgba(0,0,0,0.6);
+      --shadow-lg: 0 24px 60px -20px rgba(0,0,0,0.75);
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      --max: 1280px;
+      --header-h: 62px;
+    }
 
-/* ═══ LOGO FAVICON CENTRAL (marca d'água) ═══ */
-#logoCenter {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 22vmin;
-  height: 22vmin;
-  max-width: 160px;
-  max-height: 160px;
-  border-radius: 50%;
-  object-fit: cover;
-  opacity: 0.22;
-  z-index: 3;
-  pointer-events: none;
-  filter: drop-shadow(0 0 40px rgba(168,85,247,0.6));
-  animation: logoPulse 4s ease-in-out infinite;
-}
-@keyframes logoPulse {
-  0%,100% { opacity: 0.18; transform: translate(-50%,-50%) scale(1); }
-  50%     { opacity: 0.30; transform: translate(-50%,-50%) scale(1.05); }
-}
+    [data-theme="light"] {
+      --bg: #f6f5f1;
+      --bg-soft: #ffffff;
+      --bg-card: #ffffff;
+      --bg-elev: #f0eee8;
+      --border: #e2dfd6;
+      --text: #1a1a22;
+      --text-dim: #55555f;
+      --text-mute: #88888f;
+      --accent: #b8860b;
+      --accent-2: #a07a10;
+      --accent-glow: rgba(184, 134, 11, 0.15);
+      --shadow: 0 10px 30px -12px rgba(0,0,0,0.12);
+      --shadow-lg: 0 24px 60px -20px rgba(0,0,0,0.18);
+    }
 
-/* ═══ TOPO ═══ */
-#topBar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  padding-top: calc(14px + env(safe-area-inset-top, 0px));
-}
-.pill {
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 30px;
-  padding: 6px 14px;
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-.pill .dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #f472b6;
-  margin-right: 6px;
-  animation: blink 1.2s ease-in-out infinite;
-}
-@keyframes blink {
-  0%,100% { opacity: 1; }
-  50%     { opacity: 0.3; }
-}
-#counterPill .num {
-  color: #22d3ee;
-  font-weight: 900;
-}
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      transition: background var(--transition), color var(--transition);
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; height: auto; display: block; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
 
-/* ═══ INFO MÚSICA (rodapé) ═══ */
-#infoBox {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 10;
-  padding: 16px 18px calc(20px + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
-}
-#infoArtist {
-  font-size: 0.72rem;
-  color: #22d3ee;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-}
-#infoTitle {
-  font-size: 1.3rem;
-  color: #fff;
-  font-weight: 900;
-  line-height: 1.2;
-  margin-bottom: 10px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.9);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-#genreTag {
-  display: inline-block;
-  background: linear-gradient(135deg, #a855f7, #22d3ee);
-  color: #fff;
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 2px;
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-}
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg-soft); }
+    ::-webkit-scrollbar-thumb { background: var(--bg-elev); border-radius: 10px; border: 2px solid var(--bg-soft); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border); }
 
-/* ═══ BARRA DE 20s ═══ */
-#previewBar {
-  position: relative;
-  width: 100%;
-  height: 4px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 14px;
-}
-#previewFill {
-  position: absolute;
-  top: 0; left: 0;
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #a855f7, #22d3ee, #f472b6);
-  border-radius: 4px;
-  transition: width 0.15s linear;
-}
-#previewTime {
-  position: absolute;
-  right: 0;
-  top: -22px;
-  font-size: 0.65rem;
-  color: #22d3ee;
-  font-weight: 700;
-}
+    /* ============ HEADER ============ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header-h);
+      background: rgba(15, 15, 19, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    [data-theme="light"] .site-header { background: rgba(246, 245, 241, 0.85); }
 
-/* ═══ CONTROLES ═══ */
-#controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-}
-.ctrl {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #fff;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.1rem;
-  backdrop-filter: blur(10px);
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-.ctrl:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
-.ctrl.play {
-  width: 62px;
-  height: 62px;
-  background: linear-gradient(135deg, #a855f7, #22d3ee);
-  border: none;
-  font-size: 1.3rem;
-  box-shadow: 0 0 30px rgba(168,85,247,0.6);
-}
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+    .brand-mark {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #d4920a);
+      display: grid; place-items: center;
+      color: #14100a; font-weight: 900; font-size: 1rem;
+      box-shadow: 0 0 20px -4px var(--accent-glow);
+      flex-shrink: 0;
+    }
+    .brand-text span { color: var(--accent-2); }
 
-/* ═══ BOTÃO COMPRAR (completa) ═══ */
-#buyBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 13px;
-  margin-top: 14px;
-  background: linear-gradient(135deg, #25d366, #128C7E);
-  border: none;
-  border-radius: 25px;
-  color: #fff;
-  font-weight: 800;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
-  cursor: pointer;
-  box-shadow: 0 6px 24px rgba(37,211,102,0.5);
-  animation: buyPulse 2s ease-in-out infinite;
-}
-@keyframes buyPulse {
-  0%,100% { transform: scale(1); }
-  50%     { transform: scale(1.03); }
-}
-#buyBtn:active { transform: scale(0.97); }
+    /* Nav desktop */
+    .nav-desktop {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 10px;
+      flex: 1;
+    }
+    .nav-link {
+      padding: 8px 13px;
+      border-radius: var(--radius-sm);
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .nav-link:hover, .nav-link:focus-visible {
+      color: var(--text);
+      background: var(--bg-elev);
+      outline: none;
+    }
+    .nav-link.active { color: var(--accent); background: var(--accent-glow); }
 
-/* ═══ MENU TOPO ═══ */
-#menuBtn {
-  background: rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #fff;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1rem;
-}
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .icon-btn {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-sm);
+      display: grid; place-items: center;
+      color: var(--text-dim);
+      background: var(--bg-elev);
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+    .icon-btn:hover { color: var(--accent); background: var(--bg-card); }
+    .icon-btn svg { width: 19px; height: 19px; }
+    .icon-btn.whatsapp:hover { color: var(--green); }
 
-/* ═══ MODAL INFO ═══ */
-#modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.9);
-  z-index: 100;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#modal.open { display: flex; }
-.modalBox {
-  background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
-  border-radius: 24px;
-  padding: 24px 20px;
-  max-width: 380px;
-  width: 100%;
-  border: 1px solid rgba(168,85,247,0.3);
-  text-align: center;
-}
-.modalBox h2 {
-  color: #fff;
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-}
-.modalBox p {
-  color: #aaa;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-.modalBox button {
-  width: 100%;
-  padding: 12px;
-  background: linear-gradient(135deg, #a855f7, #22d3ee);
-  border: none;
-  border-radius: 25px;
-  color: #fff;
-  font-weight: 800;
-  font-size: 0.9rem;
-  cursor: pointer;
-  margin-bottom: 8px;
-}
-.modalBox button.close {
-  background: rgba(255,255,255,0.08);
-  color: #888;
-  font-size: 0.8rem;
-}
+    /* Mobile nav toggle */
+    .nav-toggle { display: none; }
 
-/* ═══ LOADING ═══ */
-#loading {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 20px;
-}
-#loading img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 3px solid #a855f7;
-  animation: logoPulse 1.5s ease-in-out infinite;
-}
-#loading .text {
-  font-size: 1rem;
-  background: linear-gradient(135deg, #a855f7, #22d3ee, #f472b6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 900;
-  letter-spacing: 4px;
-}
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(168,85,247,0.2);
-  border-top-color: #22d3ee;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+    /* Mobile menu */
+    .mobile-menu {
+      position: fixed;
+      inset: var(--header-h) 0 0 0;
+      background: var(--bg);
+      z-index: 99;
+      padding: 20px;
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform var(--transition);
+      visibility: hidden;
+    }
+    .mobile-menu.open { transform: translateX(0); visibility: visible; }
+    .mobile-menu .nav-link {
+      display: block;
+      padding: 14px 16px;
+      font-size: 1rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 4px;
+    }
+    @media (max-width: 900px) {
+      .nav-desktop { display: none; }
+      .nav-toggle { display: grid; }
+      .brand { flex: 1; }
+    }
 
-/* ═══ RESPONSIVO ═══ */
-@media (max-width: 480px) {
-  #infoTitle { font-size: 1.1rem; }
-  #infoArtist { font-size: 0.65rem; }
-  .ctrl { width: 44px; height: 44px; font-size: 1rem; }
-  .ctrl.play { width: 56px; height: 56px; font-size: 1.2rem; }
-  #controls { gap: 10px; }
-}
-</style>
+    /* ============ SEARCH BAR ============ */
+    .search-hero {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 28px 20px 6px;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 6px 6px 20px;
+      max-width: 620px;
+      margin: 0 auto;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .search-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+    .search-box svg { width: 18px; height: 18px; color: var(--text-mute); flex-shrink: 0; }
+    .search-box input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 0.95rem;
+      padding: 8px 0;
+      min-width: 0;
+    }
+    .search-box input::placeholder { color: var(--text-mute); }
+    .search-box button {
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #14100a;
+      font-weight: 700;
+      font-size: 0.88rem;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .search-box button:hover { background: var(--accent-2); }
+
+    /* ============ HERO ============ */
+    .hero {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 40px 20px 20px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(1.9rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+    .hero h1 .grad {
+      background: linear-gradient(120deg, var(--accent), #e6c874 50%, #d4920a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: var(--text-dim);
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      max-width: 600px;
+      margin: 0 auto 8px;
+    }
+    .hero-badges {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center; margin-top: 18px;
+    }
+    .badge {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: 999px;
+    }
+    .badge .dot { color: var(--accent); margin-right: 6px; }
+
+    /* ============ SECTION ============ */
+    .section {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 34px 20px;
+    }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::before {
+      content: "";
+      width: 4px;
+      height: 20px;
+      border-radius: 4px;
+      background: linear-gradient(var(--accent), #d4920a);
+    }
+    .section-link {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-2);
+      transition: color var(--transition);
+    }
+    .section-link:hover { color: var(--accent); }
+
+    /* ============ PLAYLIST GRID (POSTS) ============ */
+    .post-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .post-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .post-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-lg);
+    }
+    .post-cover {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background: var(--bg-elev);
+    }
+    .post-cover img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .post-card:hover .post-cover img { transform: scale(1.06); }
+    .post-cover::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent 55%);
+      pointer-events: none;
+    }
+    .post-play {
+      position: absolute;
+      bottom: 12px; right: 12px;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #14100a;
+      display: grid; place-items: center;
+      z-index: 2;
+      transform: scale(0.85);
+      opacity: 0;
+      transition: all var(--transition);
+      box-shadow: 0 6px 20px -4px rgba(0,0,0,0.5);
+    }
+    .post-play svg { width: 18px; height: 18px; margin-left: 2px; }
+    .post-card:hover .post-play { opacity: 1; transform: scale(1); }
+    .post-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .post-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .post-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.35;
+      color: var(--text);
+    }
+    .post-meta {
+      margin-top: auto;
+      padding-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-mute);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ============ PLAYER SECTION ============ */
+    .player-wrap {
+      background: linear-gradient(160deg, var(--bg-card), var(--bg-soft));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-top: 10px;
+    }
+    .player-wrap iframe {
+      width: 100%;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: #000;
+      display: block;
+    }
+    .player-wrap iframe + iframe { margin-top: 12px; }
+
+    /* ============ CATEGORIES (SIDEBAR LINKS) ============ */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .cat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      transition: all var(--transition);
+    }
+    .cat-card:hover { border-color: var(--accent); background: var(--bg-elev); }
+    .cat-card h3 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--accent-2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cat-card h3 .ico { font-size: 1.05rem; }
+    .cat-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .cat-list a {
+      display: block;
+      padding: 5px 0;
+      font-size: 0.83rem;
+      color: var(--text-dim);
+      transition: color var(--transition), padding-left var(--transition);
+      line-height: 1.4;
+    }
+    .cat-list a:hover { color: var(--accent); padding-left: 4px; }
+
+    /* ============ QR CODE CARD ============ */
+    .qr-card {
+      max-width: 380px;
+      margin: 30px auto 0;
+      border-radius: var(--radius);
+      padding: 26px 24px;
+      text-align: center;
+      background: linear-gradient(180deg, #221a13, #0e0b07);
+      border: 1px solid #3a2c1e;
+      box-shadow: var(--shadow-lg);
+    }
+    .qr-card h3 {
+      font-size: 1.3rem; font-weight: 800;
+      color: var(--accent-2); margin-bottom: 4px;
+    }
+    .qr-card p { font-size: 0.85rem; color: #b7a68b; margin-bottom: 18px; }
+    .qr-card img {
+      width: 200px; max-width: 60%; height: auto;
+      border-radius: 10px; margin: 0 auto 16px;
+      background: #fff; padding: 8px;
+    }
+    .qr-card .qr-link {
+      display: inline-block;
+      padding: 11px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.84rem;
+      background: linear-gradient(180deg, #e6c874, #cba135);
+      color: #1a1305;
+      transition: filter var(--transition);
+      word-break: break-all;
+    }
+    .qr-card .qr-link:hover { filter: brightness(1.08); }
+
+    /* ============ FOOTER ============ */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+      padding: 40px 20px 30px;
+      background: var(--bg-soft);
+    }
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 32px;
+    }
+    .footer-brand p { color: var(--text-dim); font-size: 0.88rem; margin-top: 10px; max-width: 320px; }
+    .footer-col h4 {
+      font-size: 0.78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-mute); margin-bottom: 12px;
+    }
+    .footer-col a {
+      display: block; padding: 5px 0;
+      font-size: 0.86rem; color: var(--text-dim);
+      transition: color var(--transition);
+    }
+    .footer-col a:hover { color: var(--accent); }
+    .footer-bottom {
+      max-width: var(--max);
+      margin: 30px auto 0;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-mute);
+    }
+    @media (max-width: 800px) {
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1 / -1; }
+    }
+    @media (max-width: 480px) {
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+
+    /* ============ FLOATING WHATSAPP ============ */
+    .wa-float {
+      position: fixed;
+      bottom: 22px; right: 22px;
+      width: 58px; height: 58px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      display: grid; place-items: center;
+      box-shadow: 0 8px 26px -6px rgba(37, 211, 102, 0.6);
+      z-index: 90;
+      transition: all var(--transition);
+    }
+    .wa-float:hover {
+      transform: scale(1.08);
+      background: var(--green-hover);
+      box-shadow: 0 10px 32px -6px rgba(37, 211, 102, 0.75);
+    }
+    .wa-float svg { width: 28px; height: 28px; }
+
+    /* ============ TOAST ============ */
+    .toast {
+      position: fixed;
+      bottom: 100px; right: 22px;
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 0.86rem;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all var(--transition);
+      z-index: 95;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ============ UTIL ============ */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); border: 0;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  </style>
 </head>
 <body>
 
-<div id="bg"></div>
-<div id="overlay"></div>
-<img id="logoCenter" src="favicon30.png" alt="VDB" onerror="this.style.display='none'">
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#home" class="brand" aria-label="Flash Hits — início">
+        <span class="brand-mark">FH</span>
+        <span class="brand-text">Flash <span>Hits</span></span>
+      </a>
 
-<div id="topBar">
-  <div class="pill"><span class="dot"></span>AO VIVO</div>
-  <div class="pill" id="counterPill"><span class="num">1</span>/<span id="totalPill">0</span></div>
-  <button id="menuBtn">☰</button>
-</div>
+      <nav class="nav-desktop" aria-label="Navegação principal">
+        <a href="#inicio" class="nav-link active">Início</a>
+        <a href="#playlists" class="nav-link">Playlists</a>
+        <a href="#categorias" class="nav-link">Categorias</a>
+        <a href="#qr" class="nav-link">QR Code</a>
+      </nav>
 
-<div id="infoBox">
-  <div id="infoArtist">Artista</div>
-  <div id="infoTitle">Música</div>
-  <div id="genreTag">GÊNERO</div>
+      <div class="header-actions">
+        <button class="icon-btn" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+        </button>
+        <a href="https://wa.me/5585986113190?text=Ol%C3%A1!%20Gostaria%20de%20atendimento" target="_blank" rel="noopener" class="icon-btn whatsapp" aria-label="Contato WhatsApp">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.3A7.9 7.9 0 0 0 12 4a8 8 0 0 0-6.9 12l-1.1 4 4.1-1.1A8 8 0 0 0 20 12a7.9 7.9 0 0 0-2.4-5.7zM12 18.5a6.5 6.5 0 0 1-3.3-.9l-.2-.1-2.4.6.7-2.4-.2-.3a6.5 6.5 0 1 1 12 0 6.5 6.5 0 0 1-6.6 3.1zm3.6-4.9c-.2-.1-1.2-.6-1.3-.7-.2-.1-.3-.1-.4.1-.1.2-.5.7-.6.8-.1.1-.2.1-.4 0a5.3 5.3 0 0 1-2.6-2.3c-.2-.3.2-.3.6-1 .1-.1 0-.2 0-.3l-.6-1.5c-.2-.4-.4-.3-.5-.3h-.4a.8.8 0 0 0-.6.3 2.4 2.4 0 0 0-.8 1.8c0 1 .7 2 1 2.3s1.6 2.4 3.8 3.4c.5.2 1 .4 1.3.5.5.2 1 .1 1.3.1.4-.1 1.2-.5 1.4-1 .2-.5.2-.9.1-1 0-.1-.1-.2-.3-.2z"/></svg>
+        </a>
+        <button class="icon-btn nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
 
-  <div id="previewBar">
-    <div id="previewFill"></div>
-    <span id="previewTime">20s</span>
+  <!-- Mobile menu -->
+  <nav class="mobile-menu" id="mobileMenu" aria-label="Menu mobile">
+    <a href="#inicio" class="nav-link">Início</a>
+    <a href="#playlists" class="nav-link">Playlists</a>
+    <a href="#categorias" class="nav-link">Categorias</a>
+    <a href="#qr" class="nav-link">QR Code</a>
+    <a href="https://flash-hits.blogspot.com/2019/05/baixe-qualquer-playlist-aqui-do-blogue.html" class="nav-link" target="_blank" rel="noopener">Baixar Músicas</a>
+  </nav>
+
+  <!-- ===== SEARCH ===== -->
+  <div class="search-hero">
+    <form class="search-box" role="search" action="https://flash-hits.blogspot.com/search" method="get" target="_top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+      <label for="searchInput" class="sr-only">Buscar cantor, banda ou gênero</label>
+      <input id="searchInput" type="search" name="q" placeholder="Busque por cantor, banda ou gênero musical..." autocomplete="off">
+      <button type="submit">Pesquisar</button>
+    </form>
   </div>
 
-  <div id="controls">
-    <button class="ctrl" id="prevBtn">⏮</button>
-    <button class="ctrl play" id="playBtn">⏸</button>
-    <button class="ctrl" id="nextBtn">⏭</button>
-  </div>
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="inicio">
+    <h1>Reviva os <span class="grad">grandes clássicos</span><br>dos anos 70, 80 e 90</h1>
+    <p>Playlists de flashback gratuitas e ilimitadas, 24 horas por dia. Sem cadastro, sem propagandas abusivas.</p>
+    <div class="hero-badges">
+      <span class="badge"><span class="dot">●</span>+15 anos no ar</span>
+      <span class="badge"><span class="dot">●</span>100% gratuito</span>
+      <span class="badge"><span class="dot">●</span>Sem cadastro</span>
+      <span class="badge"><span class="dot">●</span>Player 24h</span>
+    </div>
+  </section>
 
-  <button id="buyBtn">
-    💬 OUVIR COMPLETA
-  </button>
-</div>
+  <!-- ===== PLAYER EM DESTAQUE ===== -->
+  <section class="section" id="playlists">
+    <div class="section-head">
+      <h2 class="section-title">Player em destaque</h2>
+      <a href="https://flash-hits.blogspot.com/2023/11/roxette-ballad-hits-japan-edition.html" class="section-link" target="_blank" rel="noopener">Ver Roxette →</a>
+    </div>
+    <div class="player-wrap">
+      <iframe allow="autoplay" height="195" src="https://www.iradeo.com/station/embed/171675" title="Player Roxette — Ballad Hits" loading="lazy"></iframe>
+    </div>
+  </section>
 
-<div id="modal">
-  <div class="modalBox">
-    <h2>🎵 VAI DE BOA! MUSIC</h2>
-    <p>Você está ouvindo uma <b>prévia de 20 segundos</b>.<br><br>Quer ouvir as músicas <b>COMPLETAS</b> sem parar?<br>Adquira o acesso <b>VITALÍCIO</b> por apenas <b style="color:#fbbf24;">R$ 39,00</b>!</p>
-    <button id="modalBuy">💬 COMPRAR AGORA</button>
-    <button class="close" id="modalClose">Continuar ouvindo prévias</button>
-  </div>
-</div>
+  <!-- ===== POSTS / PLAYLISTS ===== -->
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title">Últimas playlists</h2>
+      <a href="https://flash-hits.blogspot.com/" class="section-link" target="_blank" rel="noopener">Ver todas →</a>
+    </div>
+    <div class="post-grid">
 
-<div id="loading">
-  <img src="favicon30.png" alt="VDB" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23a855f7%22/%3E%3C/svg%3E'">
-  <div class="spinner"></div>
-  <div class="text">CARREGANDO</div>
-</div>
+      <a href="https://flash-hits.blogspot.com/2023/11/roxette-ballad-hits-japan-edition.html" class="post-card" target="_blank" rel="noopener">
+        <div class="post-cover">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhpI3jCpaddWlLiLTnfhOarX7byEZlOsITADHyv7ZUcnmOwa0GhgTclSInBoZ8GUKWlSeXwqRu16nVG95XKyH93TqTSqs48r_ye-S0qgYjEiq_jGju1B-TCniAQW_wGADSqoJRs6K8yYlmtCQBcXQYgNdJNcEwJXQqnUSbc-JUMbMBUTpihqPv1ZamB03fS/s1600/roxette.png" alt="Capa Roxette" loading="lazy">
+          <span class="post-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        </div>
+        <div class="post-body">
+          <span class="post-tag">Pop Internacional</span>
+          <span class="post-title">Roxette — The Ballad Hits (Japan Edition)</span>
+          <span class="post-meta">🎵 Player disponível</span>
+        </div>
+      </a>
 
-<audio id="player" preload="auto"></audio>
+      <a href="https://flash-hits.blogspot.com/2023/11/as-melhores-musicas-do-snap-remix.html" class="post-card" target="_blank" rel="noopener">
+        <div class="post-cover">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgLCW2xKaOluGU9ZOYzNVKZFiZTN1R0NU2zG1wJC-DWCr_Sh1Fkxyv2w0s72fXCUBCto5OeJYO5-89xboIbF4YA3zroU0My7SzbNwJ2vVsst8xPnOiW_Lbnvhd2ACQP7uiK-56jAsxedaCr/w200-h200/0000.PNG" alt="Capa Snap! The Best Of" loading="lazy">
+          <span class="post-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        </div>
+        <div class="post-body">
+          <span class="post-tag">Eurodance / Remix</span>
+          <span class="post-title">As melhores músicas do SNAP! (Remix)</span>
+          <span class="post-meta">🎵 38 músicas</span>
+        </div>
+      </a>
 
-<script>
-(function(){
-'use strict';
+      <a href="https://flash-hits.blogspot.com/2023/11/as-melhores-musicas-da-banda-roupa-nova.html" class="post-card" target="_blank" rel="noopener">
+        <div class="post-cover">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiLAdVRFe4eVOLc2YiHwKD3NsmGcgXoHvRhMBYThbEQTsexATXKyVLFKNPXVZbVwR26G3xn1vlYHvM6y-PrOp7m1RoU3jezKTIk2-7M92vTWONIO6EjE8IT8Aq-ouykyeUXquyvj5tsaxDt/w200-h200/000.PNG" alt="Capa Roupa Nova" loading="lazy">
+          <span class="post-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        </div>
+        <div class="post-body">
+          <span class="post-tag">Pop Rock Brasil</span>
+          <span class="post-title">As melhores músicas da banda Roupa Nova</span>
+          <span class="post-meta">🎵 2 playlists</span>
+        </div>
+      </a>
 
-/* ═══════════════════════════════════════════════════════════
-   ⚙️ CONFIGURAÇÕES
-   ═══════════════════════════════════════════════════════════ */
-const CONFIG = {
-  WHATSAPP: '5512988461978',
-  DURACAO_PREVIEW: 20,          // segundos por música
-  FADE_OUT: 2,                  // fade final em segundos
-  FOTO_FALLBACK: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp',
-};
+      <a href="https://flash-hits.blogspot.com/2023/10/cd-as-7-melhores-vol5-1996-fm-jovem-pan.html" class="post-card" target="_blank" rel="noopener">
+        <div class="post-cover">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi-XVPpqw_98KbPLjTsH2AHt2KLWrjAhr0wmb9tW16XN6W-hzebfgTb72IK8lTfCdcU3eKYjU68a0U0Ggr5o0fdFMBhnKvmctBfRlWtbCTaX84GZwlIL3E2D-o73JhUL1W99Yhxb_POMkEqsw_LwN5NseHF7LYXGRzsTwbXBCcRCM20uzWNYqfypjWcfIx8/s1600/Various%20-%20As%207%20Melhores%20Volume%205%20%20%20Releases%20%20%20Discogs.jpg" alt="Capa As 7 Melhores Vol.5" loading="lazy">
+          <span class="post-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        </div>
+        <div class="post-body">
+          <span class="post-tag">Jovem Pan / 1996</span>
+          <span class="post-title">CD As 7 Melhores (Vol.5 — 1996)</span>
+          <span class="post-meta">🎵 Player disponível</span>
+        </div>
+      </a>
 
-/* ═══════════════════════════════════════════════════════════
-   🎵 LISTA DE MÚSICAS — EDITE AQUI!
-   
-   COMO ADICIONAR:
-   1. Suba o MP3 no GitHub (radiolojasjc-hub/SEU-REPO)
-   2. Suba a foto .webp no GitHub (radiolojasjc-hub/VDB/fotos/)
-   3. Cole a URL do MP3 em "src" e da foto em "foto"
-   ═══════════════════════════════════════════════════════════ */
-const MUSICAS = [
-  {
-    artist: "Nattan & Zé Vaqueiro",
-    title: "Aproveita Que Eu Tô Brigado (Ao Vivo)",
-    genero: "FORRÓ",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/Aproveita_Que_Eu_To_Brigado.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/nattan.webp"
-  },
-  {
-    artist: "Raphael Alencar",
-    title: "Brigas",
-    genero: "POP",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/Brigas_Raphael_Alencar.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
-  },
-  {
-    artist: "DAN VENTURA",
-    title: "Cada Volta É Um Recomeço",
-    genero: "POP",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/we-Are-Family-.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/600x600cc.webp"
-  },
-  {
-    artist: "Seresta Boteco Brega",
-    title: "Porque Brigamos",
-    genero: "BREGA",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/Porque_Brigamos_Seresta_Boteco_Brega.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
-  },
-  {
-    artist: "Klessinha",
-    title: "Fim de Noite",
-    genero: "POP",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/FimdeNoiteKlessinha.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
-  },
-  {
-    artist: "Raphael Alencar O Príncipe",
-    title: "A Raposa e as Uvas",
-    genero: "SERESTA",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/A_Raposa_e_as_Uvas_DVD_Seresta_do_Principe_Raphael_Alencar_O_Principe.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
-  },
-  {
-    artist: "Raphael Alencar O Príncipe",
-    title: "Retrovisor",
-    genero: "SERESTA",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/Retrovisor_DVD_Seresta_do_Principe_Raphael_Alencar_O_Principe.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
-  },
-  {
-    artist: "DAN VENTURA",
-    title: "2.0 Amanhã Talvez Estou Apaixonado",
-    genero: "POP",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/._AMANHA_TALVEZ_ESTOU_APAIXONADO_DAN_VENTURA.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
-  },
-  {
-    artist: "DAN VENTURA",
-    title: "2.0 É Tarde Demais Sozinho",
-    genero: "POP",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/._E_TARDE_DEMAIS_SOZINHO_DAN_VENTURA.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
-  },
-  {
-    artist: "Raphael Alencar O Príncipe",
-    title: "A Desconhecida",
-    genero: "SERESTA",
-    src: "https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/A_Desconhecida_DVD_Seresta_do_Principe_Raphael_Alencar_O_Principe.mp3",
-    foto: "https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/fotos/padrao.webp"
-  },
-];
+      <a href="https://flash-hits.blogspot.com/2023/10/cd-as-7-melhores-vol4-1995-fm-jovem-pan.html" class="post-card" target="_blank" rel="noopener">
+        <div class="post-cover">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg-ah0wo4BIh43tXL7jOIUgZl-rpZIrDdwyw3G_-WnnjXcXcgDcSq2fT8GjOUO9SvdblwmXOwx_AZEC8U3wiEbFGGMpOmQfXozltoYbs_T7xoTK2TAmC_FAhAy7V-YiA8RpMwkSA9EYCJ5kYhUeRVdtcqPaZD7i4t8f0d-zL5Gi-vTmas1dmH8F2rS1b-U4/s1600/Various%20-%20As%207%20Melhores%20Volume%204%20%20%20Releases%20%20%20Discogs.jpg" alt="Capa As 7 Melhores Vol.4" loading="lazy">
+          <span class="post-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        </div>
+        <div class="post-body">
+          <span class="post-tag">Jovem Pan / 1995</span>
+          <span class="post-title">CD As 7 Melhores (Vol.4 — 1995)</span>
+          <span class="post-meta">🎵 Player disponível</span>
+        </div>
+      </a>
 
-/* ═══════════════════════════════════════════════════════════
-   🧠 ESTADO
-   ═══════════════════════════════════════════════════════════ */
-const state = {
-  indice: 0,
-  tocando: false,
-  timerPreview: null,
-  timerFade: null,
-  currentFoto: null,
-};
+      <a href="https://flash-hits.blogspot.com/2023/10/cd-as-7-melhores-vol3-1995-fm-jovem-pan.html" class="post-card" target="_blank" rel="noopener">
+        <div class="post-cover">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEioe0tCladrKjW5Geo0Vl-cLRHiyDKro6Ggcunl79K5CNOQ8CDK89h527A33z_zkm6Hb8QbEh0Bw47TG0OVgL6HWaLs2e-OmozVIAmljS2jCnmlL6OuGs2vxmAK6D4WdsKWlLYNhvJk4OqCTXZ8NZ1RVrcywhT5LKPd9_mjzOHHzybYOwMBmH2m5uYgJi8N/s1600/As%20Sete%20Melhores%20Da%20Pan%20Volume%203%20%281995,%20Vinyl%29%20-%20Discogs.jpg" alt="Capa As 7 Melhores Vol.3" loading="lazy">
+          <span class="post-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        </div>
+        <div class="post-body">
+          <span class="post-tag">Jovem Pan / 1995</span>
+          <span class="post-title">CD As 7 Melhores (Vol.3 — 1995)</span>
+          <span class="post-meta">🎵 Player disponível</span>
+        </div>
+      </a>
 
-const player = document.getElementById('player');
-const bg = document.getElementById('bg');
-const elArtist = document.getElementById('infoArtist');
-const elTitle = document.getElementById('infoTitle');
-const elGenre = document.getElementById('genreTag');
-const elCounter = document.querySelector('#counterPill .num');
-const elTotal = document.getElementById('totalPill');
-const elFill = document.getElementById('previewFill');
-const elTime = document.getElementById('previewTime');
-const playBtn = document.getElementById('playBtn');
+      <a href="https://flash-hits.blogspot.com/2023/10/cd-as-7-melhores-vol2-1995-fm-jovem-pan.html" class="post-card" target="_blank" rel="noopener">
+        <div class="post-cover">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhhy7RyCw6di2fPR5HoHVQsBmsq6pGVwnInuxBHq2hIvjodP-V-SuA1692rsh_a62EQqItv7Vc6ma_5FE6KcCO1czqjDXRGKSShIHFFTsFmVoXljwLKO0pkuY4y6ghwBvd4bVHGzzKovOFF8PhROKb4DzP4eeXqdunVT5e66Zt7GHATBCxISZyt9WI6Qxx2/s1600/Various%20-%20As%20Sete%20Melhores%20Volume%202%20%20%20Releases%20%20%20Discogs.jpg" alt="Capa As 7 Melhores Vol.2" loading="lazy">
+          <span class="post-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        </div>
+        <div class="post-body">
+          <span class="post-tag">Jovem Pan / 1995</span>
+          <span class="post-title">CD As 7 Melhores (Vol.2 — 1995)</span>
+          <span class="post-meta">🎵 Player disponível</span>
+        </div>
+      </a>
 
-document.getElementById('totalPill').textContent = MUSICAS.length;
+    </div>
+  </section>
 
-/* ═══════════════════════════════════════════════════════════
-   🎨 HELPERS
-   ═══════════════════════════════════════════════════════════ */
-function mostrarMusica(idx) {
-  if (!MUSICAS.length) return;
-  state.indice = ((idx % MUSICAS.length) + MUSICAS.length) % MUSICAS.length;
-  const m = MUSICAS[state.indice];
+  <!-- ===== CATEGORIAS ===== -->
+  <section class="section" id="categorias">
+    <div class="section-head">
+      <h2 class="section-title">Navegue por categorias</h2>
+    </div>
+    <div class="categories">
 
-  elArtist.textContent = m.artist || 'Artista';
-  elTitle.textContent = m.title || 'Música';
-  elGenre.textContent = m.genero || 'MÚSICA';
-  elCounter.textContent = state.indice + 1;
+      <div class="cat-card">
+        <h3><span class="ico">💿</span> Músicas dos anos 70</h3>
+        <ul class="cat-list">
+          <li><a href="http://flash-hits.blogspot.com/2011/03/escute-o-melhor-da-disco-music-anos-70.html">Disco Music 70's</a></li>
+          <li><a href="http://flash-hits.blogspot.com.br/2012/12/escute-e-recorde-musicas-dos-anos-70s.html">Disco Music Remix</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/03/playlist-do-grupo-kc-and-sunshine-band.html">KC and the Sunshine Band</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/05/playlist-da-banda-earth-wind-fire.html">Earth, Wind & Fire</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/03/escute-musicas-do-kool-gang.html">Kool & The Gang</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/03/playlist-do-grupo-village-people.html">Village People</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/05/playlist-com-musicas-dos-bee-gees.html">Bee Gees</a></li>
+          <li><a href="http://flash-hits.blogspot.com/2011/06/escute-as-melhores-musicas-do-grupo.html">ABBA</a></li>
+        </ul>
+      </div>
 
-  // foto de fundo
-  const foto = m.foto || CONFIG.FOTO_FALLBACK;
-  if (state.currentFoto !== foto) {
-    state.currentFoto = foto;
-    bg.style.opacity = '0';
-    const img = new Image();
-    img.onload = () => {
-      bg.style.backgroundImage = `url('${foto}')`;
-      bg.classList.add('zoom');
-      setTimeout(() => { bg.style.opacity = '1'; }, 50);
-    };
-    img.onerror = () => {
-      bg.style.backgroundImage = `url('${CONFIG.FOTO_FALLBACK}')`;
-      bg.style.opacity = '1';
-    };
-    img.src = foto;
-  }
-}
+      <div class="cat-card">
+        <h3><span class="ico">🎧</span> Singes e Remixes 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="https://flash-hits.blogspot.com/2022/04/musicas-remix-dos-anos-80-e-90-parte-1.html">Músicas Remix 80/90 — Parte 1</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/09/musicas-remix-dos-anos-80-e-90-parte-2.html">Músicas Remix 80/90 — Parte 2</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/09/musicas-remix-dos-anos-80-e-90-parte-3.html">Músicas Remix 80/90 — Parte 3</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-do-snap-single-remix.html">SNAP! Remix</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-do-ice-mc-single-remix.html">ICE MC</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/10/as-melhores-musicas-remix-de-michael.html">Michael Jackson — Remix</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/05/as-melhores-versoes-remix-da-dupla-pet.html">Pet Shop Boys — Rare Remix</a></li>
+        </ul>
+      </div>
 
-function tocarAtual() {
-  const m = MUSICAS[state.indice];
-  if (!m) return;
+      <div class="cat-card">
+        <h3><span class="ico">📺</span> Temas de novelas 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="https://flash-hits.blogspot.com/2011/07/escute-o-melhor-internacional-das.html">Internacional de Novelas 1980–1988</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/09/o-melhor-internacional-de-novelas-80-e.html">Internacional de Novelas 1988–1994</a></li>
+          <li><a href="http://flash-hits.blogspot.com.br/2014/10/escute-e-recorde-musicas-da-novela-top.html">CD Novela Top Model (Internacional)</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2019/06/musicas-do-passado-e-os-melhores-temas.html">Temas de Aberturas de Novelas</a></li>
+        </ul>
+      </div>
 
-  pararTimers();
-  player.pause();
-  player.removeAttribute('src');
-  player.load();
-  player.src = m.src;
-  player.volume = 1;
-  player.currentTime = 0;
+      <div class="cat-card">
+        <h3><span class="ico">🎸</span> Bandas de Rock 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="https://flash-hits.blogspot.com/2022/07/as-melhores-musicas-da-banda-pink-floyd.html">Pink Floyd</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-da-banda-nirvana.html">Nirvana</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/05/playlist-da-banda-aerosmith.html">Aerosmith</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-com-sons-do-ac-dc-best-50.html">AC/DC</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/03/playlist-da-banda-bon-jovi.html">Bon Jovi</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-da-banda-pretenders.html">The Pretenders</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/05/as-melhores-musicas-da-banda-iron-maiden.html">Iron Maiden</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/05/as-melhores-musicas-da-banda-scorpions.html">Scorpions</a></li>
+        </ul>
+      </div>
 
-  const onCanPlay = () => {
-    player.removeEventListener('canplay', onCanPlay);
-    player.play().then(() => {
-      state.tocando = true;
-      playBtn.textContent = '⏸';
-      iniciarTimerPreview();
-    }).catch(() => {
-      // Autoplay bloqueado ou erro — tenta próxima
-      setTimeout(() => { proxima(); }, 800);
-    });
-  };
-  player.addEventListener('canplay', onCanPlay);
-  player.load();
-}
+      <div class="cat-card">
+        <h3><span class="ico">🇧🇷</span> MPB 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="https://flash-hits.blogspot.com/2022/05/o-melhor-da-mpb-80-90-vol-01-e-02-100.html">MPB 80/90 — Vol.01</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/09/o-melhor-da-mpb-80-90-parte-02.html">MPB 80/90 — Vol.02</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/06/playlist-do-cantor-ritchie.html">Ritchie</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/05/as-melhores-musicas-do-cantor-belchior.html">Belchior</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-do-cantor-tim-maia.html">Tim Maia</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-do-cantor-raul-seixas.html">Raul Seixas</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/05/as-melhores-musicas-do-cantor-djavan.html">Djavan</a></li>
+        </ul>
+      </div>
 
-function iniciarTimerPreview() {
-  const dur = CONFIG.DURACAO_PREVIEW;
-  const inicio = Date.now();
+      <div class="cat-card">
+        <h3><span class="ico">💃</span> Axé Music 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="https://flash-hits.blogspot.com/2022/04/o-melhor-do-axe-music-80-e-90.html">Músicas de Axé 80/90</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/04/o-melhor-do-ara-ketu.html">Ara Ketu</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/04/as-melores-musicas-da-banda-asa-de-aguia.html">Asa de Águia</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/04/as-melhores-musicas-da-cantora-daniela.html">Daniela Mercury</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/04/as-melhores-musicas-do-grupo-e-o-tchan.html">É o Tchan!</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/04/as-melhores-musicas-do-cantor-netinho.html">Netinho</a></li>
+        </ul>
+      </div>
 
-  state.timerPreview = setInterval(() => {
-    const passou = (Date.now() - inicio) / 1000;
-    const pct = Math.min((passou / dur) * 100, 100);
-    elFill.style.width = pct + '%';
-    const restante = Math.max(0, Math.ceil(dur - passou));
-    elTime.textContent = restante + 's';
+      <div class="cat-card">
+        <h3><span class="ico">🎤</span> Sertanejo 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="https://flash-hits.blogspot.com/2022/05/as-melhores-musicas-da-dupla-leandro-e.html">Leandro & Leonardo</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/05/as-melhores-musicas-da-dupla-zeze-di.html">Zezé Di Camargo & Luciano</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/05/as-melhores-musicas-da-dupla.html">Chitãozinho & Chororó</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/05/as-melhores-musicas-da-dupla-joao-paulo.html">João Paulo & Daniel</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/05/as-melhores-musicas-da-cantora-roberta.html">Roberta Miranda</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/05/as-melhores-musicas-da-dupla-bruno.html">Bruno e Marrone</a></li>
+        </ul>
+      </div>
 
-    // começa o fade nos últimos 2 segundos
-    if (passou >= dur - CONFIG.FADE_OUT && !state.timerFade) {
-      state.timerFade = setInterval(() => {
-        if (player.volume > 0.05) player.volume = Math.max(0, player.volume - 0.08);
-        else player.volume = 0;
-      }, 100);
-    }
+      <div class="cat-card">
+        <h3><span class="ico">🎉</span> Pop Internacional 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="https://flash-hits.blogspot.com/2020/06/escute-musicas-do-cantor-michael-jackson.html">Michael Jackson — The Best</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-do-cantor-michael-bolton.html">Michael Bolton</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/03/escute-musicas-do-cantor-george-michael.html">George Michael</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/05/as-melhores-musicas-da-cantora-madonna.html">Madonna</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2022/06/as-melhores-musicas-do-ha.html">A-Ha</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/03/escute-as-melhores-musicas-da-dupla-pet.html">Pet Shop Boys</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/03/escute-musicas-da-banda-roxette.html">Roxette — The Best</a></li>
+        </ul>
+      </div>
 
-    // fim dos 20s
-    if (passou >= dur) {
-      pararTimers();
-      proxima();
-    }
-  }, 150);
-}
+      <div class="cat-card">
+        <h3><span class="ico">🤘</span> Rock Brasil 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="http://flash-hits.blogspot.com/2011/03/escute-o-melhor-do-rock-brasil-dos-anos.html">Rock Brasil 80/90 — Parte 01</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/09/o-melhor-do-rock-brasil-dos-anos-8090.html">Rock Brasil 80/90 — Parte 02</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-da-banda-legiao-urbana.html">Legião Urbana</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-da-banda-os-paralamas-do.html">Os Paralamas do Sucesso</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/05/playlist-da-banda-engenheiros-do-hawaii.html">Engenheiros do Hawaii</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/05/as-melhores-musicas-da-banda-cidade.html">Cidade Negra</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/05/as-melhores-musicas-da-banda-blitz.html">Blitz</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/06/as-melhores-musicas-da-cantora-cassia.html">Cássia Eller</a></li>
+        </ul>
+      </div>
 
-function pararTimers() {
-  if (state.timerPreview) { clearInterval(state.timerPreview); state.timerPreview = null; }
-  if (state.timerFade) { clearInterval(state.timerFade); state.timerFade = null; }
-  elFill.style.width = '0%';
-  elTime.textContent = CONFIG.DURACAO_PREVIEW + 's';
-  player.volume = 1;
-}
+      <div class="cat-card">
+        <h3><span class="ico">🕺</span> Eurodance / House / Freestyle</h3>
+        <ul class="cat-list">
+          <li><a href="http://flash-hits.blogspot.com.br/2011/03/escute-o-melhor-do-house-de-8090.html">Dance Music 80/90 — Vol.01</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2023/08/o-melhor-da-euro-dance-90-vol02.html">Euro Dance 90 — Vol.02</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2011/11/escute-musicas-das-cantoras-do.html">CDs The Best Of Freestyle</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/04/playlist-do-cantor-haddaway.html">Haddaway</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/05/playlist-da-corona-cd-super-best-remix.html">Corona</a></li>
+          <li><a href="http://flash-hits.blogspot.com/2011/08/escute-musicas-do-ace-of-base.html">Ace of Base</a></li>
+          <li><a href="http://flash-hits.blogspot.com.br/2011/06/escute-e-dance-com-o-melhor-do-2.html">2 Unlimited</a></li>
+        </ul>
+      </div>
 
-function proxima() {
-  mostrarMusica(state.indice + 1);
-  tocarAtual();
-}
-function anterior() {
-  mostrarMusica(state.indice - 1);
-  tocarAtual();
-}
+      <div class="cat-card">
+        <h3><span class="ico">🎬</span> Temas de filmes 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="https://flash-hits.blogspot.com/2011/07/escute-as-musicas-temas-dos-filmes-dos.html">Temas de Filmes 80/90</a></li>
+          <li><a href="http://flash-hits.blogspot.com.br/2011/07/escute-as-musicas-temas-dos-filmes-dos.html">Temas de Filmes Românticos</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/05/playlist-cd-saturday-night-fever-os.html">CD Saturday Night Fever</a></li>
+          <li><a href="http://flash-hits.blogspot.com.br/2011/07/escute-as-musicas-do-filme-top-gun-ases.html">CD Filme Top Gun</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2021/05/playlist-cd-filme-rocky-balboa.html">CD Rocky Balboa</a></li>
+        </ul>
+      </div>
 
-function togglePlay() {
-  if (state.tocando) {
-    player.pause();
-    state.tocando = false;
-    playBtn.textContent = '▶';
-    pararTimers();
-  } else {
-    tocarAtual();
-  }
-}
+      <div class="cat-card">
+        <h3><span class="ico">🎚️</span> Blocos mixados 80/90</h3>
+        <ul class="cat-list">
+          <li><a href="http://flash-hits.blogspot.com/2011/03/escute-blocos-mixados-do-programa.html">DJ Danny Kelton</a></li>
+          <li><a href="http://flash-hits.blogspot.com/2011/09/escute-musicas-dos-anos-7080-e-90.html">Anos 70s Mixado</a></li>
+          <li><a href="http://flash-hits.blogspot.com/2011/09/escute-musicas-dos-anos-7080-e-90.html">Anos 80/90 Mixados</a></li>
+          <li><a href="http://flash-hits.blogspot.com/2011/09/escute-musicas-dos-anos-7080-e-90.html">Dance Music 90 Mixado</a></li>
+          <li><a href="http://flash-hits.blogspot.com/2011/03/musicas-mixadas-dos-anos-8090-escute-e.html">Blocos Mixados 80/90</a></li>
+          <li><a href="https://flash-hits.blogspot.com/2019/06/no-musicas-do-passado-dance-party-90.html">Dance Party 90 — Vol. 1,2,3</a></li>
+        </ul>
+      </div>
 
-/* ═══════════════════════════════════════════════════════════
-   🎯 EVENTOS
-   ═══════════════════════════════════════════════════════════ */
-playBtn.onclick = togglePlay;
-document.getElementById('nextBtn').onclick = proxima;
-document.getElementById('prevBtn').onclick = anterior;
+    </div>
+  </section>
 
-function abrirWhats() {
-  const m = MUSICAS[state.indice];
-  const msg = `Olá! Ouvi a prévia de *${m.title}* — ${m.artist} no VAI DE BOA! MUSIC e quero o acesso VITALÍCIO por R$ 39,00 🎵`;
-  window.open('https://wa.me/' + CONFIG.WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
-}
-document.getElementById('buyBtn').onclick = abrirWhats;
-document.getElementById('modalBuy').onclick = abrirWhats;
+  <!-- ===== QR CODE ===== -->
+  <section class="section" id="qr">
+    <div class="section-head">
+      <h2 class="section-title">Acesse pelo celular</h2>
+    </div>
+    <div class="qr-card">
+      <h3>FLASH HITS</h3>
+      <p>Playlists flashback dos anos 70, 80 e 90</p>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAwoAAANQCAIAAAA/Tw/nAABH1klEQVR4nO3dbbBuZ3kf9n1AL+hwJB2QzpEwwsIOBoNDIdjgqEz9QjGWlXqmbTqx06ZyijvT6XRa7LppO06mw7QM7Zem4EnSSVpSlbQTN07idOIymsQDdmzXdkxs/AKkdrElI4MtJKo3JIRkqR8eVz3rnL2ffa/nWddz3de9fr9P6Gifte77uq+19qVzHvb/zIXz5474638b5m7dPHt09NEn//AXf/P3f/GeL37pqWeODg5fdt2FN7z6wr/1pju/5Y2vOHfN1Uf8bfanf/nrf/KXv7b5xze//ua/9SPfsv/f/n+//NC/+IWvHh0dve/NL/93v++N+/ztQ48+/Tf/4c898sQzR0dH//F3v/7feNfr9v/uH/z8g//8F766+cff/9++7eqzL9r8+q/85u/9/Z/95c0//um//x1XPe/5Xv/v/PQXfvY3f//o6Og7vuWr/tYPvPmIvx2wyX/1P/zqV37r9/e//tf+2Xd/7Veef+qZ5/7OT33hX/3m7+//t3/sL7/h33z36/f/25/9zd//O3/3maOjo2/55jv/k+//5v2/+xP/+y//3P/3O5t//Fs/8uZvfsPL9//uL/36o3/7p35l849/50e/9Wu/8vzR0dH/86u/+3/9s1/a/OMf/I43fu93vPbkP9c/+U9//qtf+73NP/6tH/mmb37DK/b/7i/+2qN/56d+efOPf+dHv/Vrv/L80dHR//Mrj/yfP/OFzT/+4He+8Xu/43Un/7n+iX/yc1/9nd/b/OPf/tFv/eY3vHz/7/7Cr33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf7rf/JzX/2d39v849/+0W/95je8fP/v/sKvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/qt/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+wq997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+y3/yc1/9nd/b/OPf/tFv/eY3vHz/7/7Cr33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6Lf/JzX/2d39v849/+0W/95je8fP/v/sKvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/ot/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+wq997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+83/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf7zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/Ojr6f37lkZ/8mS9s/vEPfucbv/c7TnEd/rN/8nNf/Z3f2/zj3/7Rb/3mN7x8/+/+/K997e/81C9v/vHv/Oi3fu1Xnj86Ovp/fuWRn/yZL2z+8Q9+5xu/9ztOcR3+s3/yc1/9nd/b/OPf/tFv/eY3vHz/7/78r33t7/zUL2/+8e/86Ld+7VeePzo6+n9+5ZGf/JkvbP7xD37nG7/3O05xHf6zf/JzX/2d39v849/+0W/95je8fP/v/vyvfe3v/NQvb/7x7/zot37tV54/8d8BhoDz8f9cO3sAAAAASUVORK5CYII=" alt="QR Code Flash Hits" width="200" height="200" loading="lazy">
+      <p>📱 Aponte a câmera do celular para o QR Code<br>ou acesse:</p>
+      <a class="qr-link" href="https://flashhitsmusicasdopassado.netlify.app/" target="_blank" rel="noopener noreferrer">flashhitsmusicasdopassado.netlify.app</a>
+    </div>
+  </section>
 
-document.getElementById('menuBtn').onclick = () => document.getElementById('modal').classList.add('open');
-document.getElementById('modalClose').onclick = () => document.getElementById('modal').classList.remove('open');
-document.getElementById('modal').onclick = (e) => {
-  if (e.target.id === 'modal') e.target.classList.remove('open');
-};
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#inicio" class="brand">
+          <span class="brand-mark">FH</span>
+          <span class="brand-text">Flash <span>Hits</span></span>
+        </a>
+        <p>Playlists inesquecíveis dos anos 70, 80 e 90. Gratuito, ilimitado e 24h por dia. Com mais de 15 anos de história, nossa missão é manter a boa música viva.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navegar</h4>
+        <a href="#inicio">Início</a>
+        <a href="#playlists">Playlists</a>
+        <a href="#categorias">Categorias</a>
+        <a href="#qr">QR Code</a>
+      </div>
+      <div class="footer-col">
+        <h4>Atalhos</h4>
+        <a href="https://flash-hits.blogspot.com/2019/05/baixe-qualquer-playlist-aqui-do-blogue.html" target="_blank" rel="noopener">Baixar Músicas</a>
+        <a href="https://flash-hits.blogspot.com/2011/09/escute-musicas-dos-anos-7080-e-90.html" target="_blank" rel="noopener">Blocos Mixados</a>
+        <a href="https://flash-hits.blogspot.com/2011/09/escute-classicos-do-funk-dos-anos-8090.html" target="_blank" rel="noopener">Clássicos do Funk</a>
+        <a href="https://musicasremix708090.blogspot.com/" target="_blank" rel="noopener">Remix 70/80/90</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © <span id="year"></span> Flash Hits — Músicas do Passado. Todos os direitos reservados.
+    </div>
+  </footer>
 
-// teclado
-document.addEventListener('keydown', (e) => {
-  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
-  if (e.key === 'ArrowRight') proxima();
-  if (e.key === 'ArrowLeft') anterior();
-});
+  <!-- WhatsApp float -->
+  <a href="https://wa.me/5585986113190?text=Ol%C3%A1!%20Gostaria%20de%20atendimento" target="_blank" rel="noopener" class="wa-float" aria-label="Fale conosco no WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.3A7.9 7.9 0 0 0 12 4a8 8 0 0 0-6.9 12l-1.1 4 4.1-1.1A8 8 0 0 0 20 12a7.9 7.9 0 0 0-2.4-5.7zM12 18.5a6.5 6.5 0 0 1-3.3-.9l-.2-.1-2.4.6.7-2.4-.2-.3a6.5 6.5 0 1 1 12 0 6.5 6.5 0 0 1-6.6 3.1zm3.6-4.9c-.2-.1-1.2-.6-1.3-.7-.2-.1-.3-.1-.4.1-.1.2-.5.7-.6.8-.1.1-.2.1-.4 0a5.3 5.3 0 0 1-2.6-2.3c-.2-.3.2-.3.6-1 .1-.1 0-.2 0-.3l-.6-1.5c-.2-.4-.4-.3-.5-.3h-.4a.8.8 0 0 0-.6.3 2.4 2.4 0 0 0-.8 1.8c0 1 .7 2 1 2.3s1.6 2.4 3.8 3.4c.5.2 1 .4 1.3.5.5.2 1 .1 1.3.1.4-.1 1.2-.5 1.4-1 .2-.5.2-.9.1-1 0-.1-.1-.2-.3-.2z"/></svg>
+  </a>
 
-// swipe (mobile)
-let touchStartX = 0;
-document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
-document.addEventListener('touchend', (e) => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  if (Math.abs(dx) > 60) {
-    if (dx < 0) proxima();
-    else anterior();
-  }
-}, { passive: true });
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-/* ═══════════════════════════════════════════════════════════
-   🚀 INICIAR
-   ═══════════════════════════════════════════════════════════ */
-function iniciar() {
-  mostrarMusica(0);
-  setTimeout(() => {
-    document.getElementById('loading').style.display = 'none';
-    // tenta tocar (o usuário pode ter que tocar na tela 1ª vez por causa do autoplay)
-    tocarAtual();
-  }, 1200);
-}
+  <script>
+    (function () {
+      'use strict';
 
-// Se o navegador bloquear autoplay, ativa no primeiro clique/touch
-function desbloquearAutoplay() {
-  document.removeEventListener('click', desbloquearAutoplay);
-  document.removeEventListener('touchstart', desbloquearAutoplay);
-  if (!state.tocando) tocarAtual();
-}
-document.addEventListener('click', desbloquearAutoplay, { once: true });
-document.addEventListener('touchstart', desbloquearAutoplay, { once: true });
+      /* ---- Ano dinâmico ---- */
+      document.getElementById('year').textContent = new Date().getFullYear();
 
-iniciar();
+      /* ---- Tema dark/light com persistência ---- */
+      const root = document.documentElement;
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
 
-})();
-</script>
+      const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';
+      const MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+
+      function applyTheme(theme) {
+        if (theme === 'light') {
+          root.setAttribute('data-theme', 'light');
+          themeIcon.innerHTML = MOON;
+        } else {
+          root.removeAttribute('data-theme');
+          themeIcon.innerHTML = SUN;
+        }
+        try { localStorage.setItem('fh-theme', theme); } catch (e) {}
+      }
+
+      let saved = 'dark';
+      try { saved = localStorage.getItem('fh-theme') || 'dark'; } catch (e) {}
+      if (!saved && window.matchMedia('(prefers-color-scheme: light)').matches) saved = 'light';
+      applyTheme(saved);
+
+      themeToggle.addEventListener('click', function () {
+        const isLight = root.getAttribute('data-theme') === 'light';
+        applyTheme(isLight ? 'dark' : 'light');
+        showToast(isLight ? '🌙 Tema escuro ativado' : '☀️ Tema claro ativado');
+      });
+
+      /* ---- Menu mobile ---- */
+      const navToggle = document.getElementById('navToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+
+      navToggle.addEventListener('click', function () {
+        const open = mobileMenu.classList.toggle('open');
+        navToggle.setAttribute('aria-expanded', String(open));
+        document.body.style.overflow = open ? 'hidden' : '';
+      });
+
+      mobileMenu.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          mobileMenu.classList.remove('open');
+          navToggle.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        });
+      });
+
+      /* ---- Active nav link on scroll ---- */
+      const sections = ['inicio', 'playlists', 'categorias', 'qr'];
+      const navLinks = document.querySelectorAll('.nav-desktop .nav-link');
+      const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            navLinks.forEach(function (l) {
+              l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id);
+            });
+          }
+        });
+      }, { rootMargin: '-40% 0px -55% 0px' });
+      sections.forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+
+      /* ---- Toast ---- */
+      let toastTimer;
+      function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2200);
+      }
+      window.showToast = showToast;
+
+      /* ---- Header shadow on scroll ---- */
+      const header = document.querySelector('.site-header');
+      let lastY = 0;
+      window.addEventListener('scroll', function () {
+        const y = window.scrollY;
+        header.style.boxShadow = y > 8 ? 'var(--shadow)' : 'none';
+        lastY = y;
+      }, { passive: true });
+    })();
+  </script>
+
 </body>
 </html>
